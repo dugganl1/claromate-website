@@ -34,7 +34,7 @@ matcapTexture.colorSpace = THREE.SRGBColorSpace;
 
 const fontLoader = new FontLoader();
 fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
-  const textGeometry = new TextGeometry("Liam Duggan's Website", {
+  const textGeometry = new TextGeometry("Liam Duggan", {
     font: font,
     size: 0.5,
     depth: 0.2,
