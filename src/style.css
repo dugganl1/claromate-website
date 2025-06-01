@@ -16,5 +16,43 @@ body {
   top: 0;
   left: 0;
   outline: none;
-  z-index: 10; /* Ensure canvas is on top of background */
+  z-index: 1; /* Canvas behind text */
+}
+
+.text-overlay {
+  position: fixed;
+  top: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  color: white;
+  font-family: "IBM Plex Mono", monospace;
+  font-size: 24px;
+  font-weight: 300;
+  letter-spacing: -1px;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  pointer-events: none; /* Allow mouse events to pass through to canvas */
+}
+
+/* Responsive text sizing */
+@media (max-width: 768px) {
+  .text-overlay {
+    font-size: 16px;
+    top: 30px;
+  }
+}
+
+@media (max-width: 480px) {
+  .text-overlay {
+    font-size: 14px;
+    top: 25px;
+  }
+}
+
+@media (max-width: 375px) {
+  .text-overlay {
+    font-size: 12px;
+    top: 20px;
+  }
 }
