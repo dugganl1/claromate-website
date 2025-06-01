@@ -2,24 +2,20 @@
  * Base Setup
  */
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
-import { FontLoader } from "three/examples/jsm/loaders/FontLoader.js";
-import { TextGeometry } from "three/examples/jsm/geometries/TextGeometry.js";
 // We'll need this for merging cloud geometries
 import * as BufferGeometryUtils from "three/examples/jsm/utils/BufferGeometryUtils.js";
 
 // Final cloud settings
-const debugParams = {
-  fogColor: 0x5ba0d0, // Brighter, more saturated blue
-  fogNear: 100, // Moved further away to reduce grey fog mixing
+const cloudSettings = {
+  fogColor: 0x5ba0d0,
+  fogNear: 100,
   fogFar: 2000,
-  shaderPower: 15.0, // Reduced to make clouds less harsh
-  cloudOpacity: 0.6, // Slightly increased for more vibrant clouds
+  shaderPower: 15.0,
+  cloudOpacity: 0.6,
   enableSecondLayer: true,
-  renderGammaCorrection: false,
 };
 
-// Cloud shader with adjustable parameters
+// Cloud shader
 const cloudShader = {
   vertexShader: `
     varying vec2 vUv;
@@ -71,20 +67,16 @@ let windowHalfY = window.innerHeight / 2;
  */
 const textureLoader = new THREE.TextureLoader();
 
-// Load your existing matcap for text
-const matcapTexture = textureLoader.load("/textures/matcaps/custom.png");
-matcapTexture.colorSpace = THREE.SRGBColorSpace;
-
-// Load cloud texture - back to Mr. Doob's original
+// Load cloud texture
 const cloudTexture = textureLoader.load(
   "https://mrdoob.com/lab/javascript/webgl/clouds/cloud10.png"
 );
 cloudTexture.colorSpace = THREE.SRGBColorSpace;
-cloudTexture.magFilter = THREE.LinearMipMapLinearFilter;
-cloudTexture.minFilter = THREE.LinearMipMapLinearFilter;
+cloudTexture.magFilter = THREE.LinearFilter;
+cloudTexture.minFilter = THREE.LinearFilter;
 
 /**
- * Create background gradient (enhanced for more euphoric feel)
+ * Create background gradient
  */
 function createBackground() {
   const canvas = document.createElement("canvas");
@@ -94,7 +86,7 @@ function createBackground() {
   const context = canvas.getContext("2d");
   const gradient = context.createLinearGradient(0, 0, 0, canvas.height);
 
-  // Enhanced gradient for brighter, more euphoric feel (like Mr. Doob's)
+  // Enhanced gradient for brighter, more euphoric feel
   gradient.addColorStop(0, "#87ceeb"); // Bright sky blue at top
   gradient.addColorStop(0.3, "#6bb6ff"); // Vibrant blue
   gradient.addColorStop(0.7, "#5ba0d0"); // Medium blue
@@ -117,7 +109,7 @@ function createBackground() {
  */
 function createClouds() {
   // Set up fog
-  fog = new THREE.Fog(debugParams.fogColor, debugParams.fogNear, debugParams.fogFar);
+  fog = new THREE.Fog(cloudSettings.fogColor, cloudSettings.fogNear, cloudSettings.fogFar);
   scene.fog = fog;
 
   // Cloud material using shader
@@ -127,14 +119,15 @@ function createClouds() {
       fogColor: { type: "c", value: fog.color },
       fogNear: { type: "f", value: fog.near },
       fogFar: { type: "f", value: fog.far },
-      shaderPower: { type: "f", value: debugParams.shaderPower },
-      cloudOpacity: { type: "f", value: debugParams.cloudOpacity },
+      shaderPower: { type: "f", value: cloudSettings.shaderPower },
+      cloudOpacity: { type: "f", value: cloudSettings.cloudOpacity },
     },
     vertexShader: cloudShader.vertexShader,
     fragmentShader: cloudShader.fragmentShader,
     depthWrite: false,
     depthTest: false,
     transparent: true,
+    blending: THREE.NormalBlending,
   });
 
   // Create cloud geometry
@@ -165,77 +158,41 @@ function createClouds() {
   cloudMeshA = cloudMesh.clone();
   cloudMeshA.position.z = -8000;
   cloudMeshA.renderOrder = 1;
-  cloudMeshA.visible = debugParams.enableSecondLayer;
+  cloudMeshA.visible = cloudSettings.enableSecondLayer;
 
   scene.add(cloudMesh);
   scene.add(cloudMeshA);
 }
 
 /**
- * Fonts & Text (improved for better cross-device compatibility)
- */
-const fontLoader = new FontLoader();
-fontLoader.load("/fonts/helvetiker_regular.typeface.json", (font) => {
-  const textGeometry = new TextGeometry("coming soon", {
-    font: font,
-    size: 0.5,
-    depth: 0.2,
-    curveSegments: 5,
-    bevelEnabled: true,
-    bevelThickness: 0.03,
-    bevelSize: 0.02,
-    bevelOffset: 0,
-    bevelSegments: 4,
-  });
-
-  textGeometry.center();
-
-  const textMaterial = new THREE.MeshMatcapMaterial({
-    matcap: matcapTexture,
-    transparent: false, // Ensure text is fully opaque
-  });
-  const text = new THREE.Mesh(textGeometry, textMaterial);
-
-  // Position text prominently in the foreground
-  text.position.z = 500; // Moved much closer to camera
-  text.renderOrder = 999; // Ensure text renders on top
-
-  // Ensure text doesn't move with camera
-  text.position.x = 0;
-  text.position.y = 0;
-
-  scene.add(text);
-});
-
-/**
- * Camera Setup (improved for better mobile compatibility)
+ * Camera Setup
  */
 const camera = new THREE.PerspectiveCamera(30, window.innerWidth / window.innerHeight, 1, 10000);
-camera.position.z = 6000; // Start far back like in Mr. Doob's version
+camera.position.z = 6000;
 
 /**
- * Renderer (improved settings)
+ * Renderer
  */
 const renderer = new THREE.WebGLRenderer({
   canvas: canvas,
-  antialias: true, // Changed to true for better quality
-  alpha: false, // Explicitly set to false for better performance
-  powerPreference: "high-performance", // Better for animations
+  antialias: true,
+  alpha: false,
+  powerPreference: "high-performance",
 });
 renderer.setSize(window.innerWidth, window.innerHeight);
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 
-// Set to Linear color space from the start (this is what looks better)
+// Set to Linear color space
 renderer.outputColorSpace = THREE.LinearSRGBColorSpace;
 
-// Set the clear color to match the brighter background
+// Set the clear color to match the background
 renderer.setClearColor(0x5ba0d0, 1.0);
 
 // Enable sorting for proper transparency rendering
 renderer.sortObjects = true;
 
 /**
- * Event Listeners (improved for touch devices)
+ * Event Listeners
  */
 function onDocumentMouseMove(event) {
   // Reduced sensitivity for subtle movement
@@ -278,7 +235,7 @@ function animate() {
   // Cloud movement animation
   const position = ((Date.now() - startTime) * 0.03) % 8000;
 
-  // Smooth camera movement based on mouse/touch - much more subtle
+  // Smooth camera movement based on mouse/touch - subtle
   camera.position.x += (mouseX - camera.position.x) * 0.005;
   camera.position.y += (-mouseY - camera.position.y) * 0.005;
   camera.position.z = -position + 8000;
@@ -295,5 +252,5 @@ function init() {
   animate();
 }
 
-// Start when cloud texture is loaded
+// Start the animation
 init();
