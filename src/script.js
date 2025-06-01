@@ -195,17 +195,17 @@ renderer.sortObjects = true;
  * Event Listeners
  */
 function onDocumentMouseMove(event) {
-  // Reduced sensitivity for subtle movement
-  mouseX = (event.clientX - windowHalfX) * 0.05;
-  mouseY = (event.clientY - windowHalfY) * 0.03;
+  // Slightly increased sensitivity to make interaction more noticeable
+  mouseX = (event.clientX - windowHalfX) * 0.08;
+  mouseY = (event.clientY - windowHalfY) * 0.05;
 }
 
 function onDocumentTouchMove(event) {
   event.preventDefault();
   if (event.touches.length === 1) {
-    // Reduced sensitivity for subtle movement
-    mouseX = (event.touches[0].pageX - windowHalfX) * 0.05;
-    mouseY = (event.touches[0].pageY - windowHalfY) * 0.03;
+    // Slightly increased sensitivity for mobile to make interaction clear
+    mouseX = (event.touches[0].pageX - windowHalfX) * 0.08;
+    mouseY = (event.touches[0].pageY - windowHalfY) * 0.05;
   }
 }
 
